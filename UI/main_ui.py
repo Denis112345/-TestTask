@@ -22,12 +22,15 @@ class LoadAnalyzerUI:
 
         self._statistic_parametrs = {} # Список всех отслеживаемых значений
 
-        self._create_widgets()
+        self._create_widgets(['CPU', 'RAM', 'ROM'])
 
-    def _create_widgets(self):
+    def _create_widgets(self, names_statistic_parametrs:list):
         """
         
         Приватный метод для создания виджетов
+
+        Args:
+            statistic_parametrs: массив с именами парметров для создания их виджетов
 
         """
 
@@ -36,14 +39,11 @@ class LoadAnalyzerUI:
         window_title.grid(row=0, column=0, columnspan=2)
         
         # Создание строк статистики
-        self._statistic_parametrs['CPU'] = ttk.Label(self._main_frame, text='CPU: ', font=("Arial", 10))
-        self._statistic_parametrs['CPU'].grid(row=1, column=0, columnspan=2, sticky='w')
-
-        self._statistic_parametrs['RAM'] = ttk.Label(self._main_frame, text='RAM: ', font=("Arial", 10))
-        self._statistic_parametrs['RAM'].grid(row=2, column=0, columnspan=2, sticky='w')
-
-        self._statistic_parametrs['ROM'] = ttk.Label(self._main_frame, text='ROM: ', font=("Arial", 10))
-        self._statistic_parametrs['ROM'].grid(row=3, column=0, columnspan=2, sticky='w')
+        for index,name_statistic_parametr in enumerate(names_statistic_parametrs):
+            self._statistic_parametrs[name_statistic_parametr] = \
+                ttk.Label(self._main_frame, text=f'{name_statistic_parametr}: ', font=("Arial", 10))
+            
+            self._statistic_parametrs[name_statistic_parametr].grid(row=index+1, column=0, columnspan=2, sticky='w')
 
         btn = ttk.Button(self._main_frame, name='start', command=self.set_statistic_value)
         btn.grid(row=4, column=0, columnspan=2, sticky='w')
