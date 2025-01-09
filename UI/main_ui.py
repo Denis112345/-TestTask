@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-
+from tkinter import messagebox
 
 class LoadAnalyzerUI:
     def __init__(self, window:tk.Tk):
@@ -58,7 +58,7 @@ class LoadAnalyzerUI:
 
         """
 
-        print(erorr_text)
+        messagebox.showinfo("Ошибка", erorr_text)
     
     def set_statistic_value(self, parameter_name:str='None', parameter_value:str = 'None'):
         """
