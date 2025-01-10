@@ -1,1 +1,3 @@
 psutil
+sqlalchemy
+psycopg2-binary

@@ -22,7 +22,12 @@ class LoadAnalyzerUI:
 
         self._statistic_parametrs = {} # Список всех отслеживаемых значений
 
+
+
         self._create_widgets(['CPU', 'RAM', 'ROM'])
+
+    def start_recording(self):
+        pass
 
     def _create_widgets(self, names_statistic_parametrs:list):
         """
@@ -35,18 +40,31 @@ class LoadAnalyzerUI:
         """
 
         # Cоздание заголовка
-        window_title = ttk.Label(self._main_frame, text='Загрузка системы', font=("Arial", 16))
-        window_title.grid(row=0, column=0, columnspan=2)
-        
+        window_title = ttk.Label(self._main_frame, text='Загрузка системы', font=("Arial", 16), padding=[0,20])
+        window_title.grid(row=0, column=0, columnspan=10, sticky='e')
+
         # Создание строк статистики
         for index,name_statistic_parametr in enumerate(names_statistic_parametrs):
             self._statistic_parametrs[name_statistic_parametr] = \
                 ttk.Label(self._main_frame, text=f'{name_statistic_parametr}: ', font=("Arial", 10))
             
             self._statistic_parametrs[name_statistic_parametr].grid(row=index+1, column=0, columnspan=2, sticky='w')
+        
+        # Создание фрейма для панели управления функциями
+        frame_control_panel = tk.Frame(self._main_frame, pady=20)
+        frame_control_panel.grid(row = len(self._statistic_parametrs) + 1, column=0)
 
-        btn = ttk.Button(self._main_frame, name='start', command=self.set_statistic_value)
-        btn.grid(row=4, column=0, columnspan=2, sticky='w')
+        # Создание интерфейса для ввода интервала записи данных
+        label_interval_entry = ttk.Label(frame_control_panel, text='Интервал записи(сек): ')
+        label_interval_entry.grid(row=0, column=0,sticky='w')
+
+        self._interval_entry = ttk.Entry(frame_control_panel)
+        self._interval_entry.grid(row=0, column=1, sticky='w')
+
+        # Создание кнопки для записи данных в бд
+        self._button = ttk.Button(frame_control_panel, text='Начать запись', command=self._set_statistic_value)
+        self._button.grid(row=1, column=0, sticky='w')
+
 
     def _show_error_window(self, erorr_text:str):
         """
@@ -60,7 +78,7 @@ class LoadAnalyzerUI:
 
         messagebox.showinfo("Ошибка", erorr_text)
     
-    def set_statistic_value(self, parameter_name:str='None', parameter_value:str = 'None'):
+    def _set_statistic_value(self, parameter_name:str='None', parameter_value:str = 'None'):
         """
         
         Публичный метод для установки нового значения определенного параметра
