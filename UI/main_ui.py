@@ -21,7 +21,7 @@ class LoadAnalyzerUI:
         self._window.title('Load Analyzer')
         self._window.geometry('400x300')
 
-        self.auto_update_flag = True
+        self._auto_update_flag = True
 
         self._main_frame = ttk.Frame(self._window, padding=(20,20)) # Фрейм для отступа 20 пикселей со всех сторон
         self._main_frame.pack(fill="both", expand=True)
@@ -40,21 +40,33 @@ class LoadAnalyzerUI:
             interval = int(interval)
         except:
             self._show_error_window('Значние интревала должно быть цифрой или числом')
+
+        
     
     def _set_statistic_loop(self):
-        interval = self._interval_entry.get()
-        try:
-            interval = int(interval)
-        except:
-            interval = 1
 
-        while self.auto_update_flag:
-            system_statistics = SystemMonitor.get_system_resorces(interval=interval)
+        while self._auto_update_flag:
+            system_statistics = SystemMonitor.get_system_resorces(interval=0.5)
 
             for statistic_key, statistic_value in system_statistics.items():
-                print(statistic_key)
                 self._set_statistic_value(parameter_name=statistic_key, parameter_value=statistic_value)
+            try:
+                interval = self._interval_entry.get()
+                interval = int(interval)
+            except:
+                interval = 0.5
+
             time.sleep(interval)
+    
+    def _stop_statistic_loop(self):
+        self._auto_update_flag = False
+
+    def _start_set_statistic_loop(self):
+        self._auto_update_flag = True
+
+        self.update_thread = threading.Thread(target=self._set_statistic_loop)
+        self.update_thread.daemon = True
+        self.update_thread.start()
 
 
 
@@ -84,7 +96,7 @@ class LoadAnalyzerUI:
         frame_control_panel.grid(row = len(self._statistic_parametrs) + 1, column=0)
 
         # Создание интерфейса для ввода интервала записи данных
-        label_interval_entry = ttk.Label(frame_control_panel, text='Интервал записи(сек): ')
+        label_interval_entry = ttk.Label(frame_control_panel, text='Интервал обновления(сек): ')
         label_interval_entry.grid(row=0, column=0,sticky='w')
 
         self._interval_entry = ttk.Entry(frame_control_panel)
