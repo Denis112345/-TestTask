@@ -47,4 +47,4 @@ def add_statistic(statistic_data:dict):
 
 if __name__ == '__main__':
     create_tables_if_not_exist()
-    add_statistic({'CPU': 13.6, 'RAM': '6.3ГБ / 15.8ГБ', 'ROM': '62.9ГБ / 365.8ГБ'})
+    add_statistic({'CPU': '13.6%', 'RAM': '6.3ГБ / 15.8ГБ', 'ROM': '62.9ГБ / 365.8ГБ'})

@@ -10,6 +10,6 @@ class Statistic(Base):
   __tablename__ = 'statistic'
 
   id = Column(Integer, primary_key=True)
-  CPU = Column(Integer)
+  CPU = Column(String)
   RAM = Column(String)
   ROM = Column(String)

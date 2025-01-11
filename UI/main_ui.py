@@ -47,12 +47,43 @@ class LoadAnalyzerUI:
         
         self._button['text'] = 'Начать запись'
 
+    def requesting_statistic_data_loop(self):
+        if self._time_counter_flag:
+            
+
+            statistic_data = {}
+            for _,statistic_parametr_value in self._statistic_parametrs.items():
+                key,value = statistic_parametr_value['text'].split(': ')
+                statistic_data[key] = value
+
+            add_statistic(statistic_data)
+
+            try:
+                interval = self._interval_entry.get()
+                interval = int(interval)
+                if interval < 1:
+                    interval = 1
+            except:
+                interval = 1
+
+            self._window.after(interval*1000, self.requesting_statistic_data_loop)
+
+    def _start_recording_statistics(self):
+        self._change_time_button()
+        self._button['command'] = self._stop_recording_statistics
+        self._start_time_counter()
+        self.requesting_statistic_data_loop()
+
+    def _stop_recording_statistics(self):
+        self._change_time_button()
+        self._button['command'] = self._start_recording_statistics
+        self._stop_time_counter()
+
     def _start_time_counter(self):
         if not self._time_counter_flag:
             self._start_time = time.time()
             self._time_counter_flag = True
-            self._change_time_button()
-            self._button['command'] = self._stop_time_counter
+
             self._update_time_counter()
     
     def _stop_time_counter(self):
@@ -60,7 +91,6 @@ class LoadAnalyzerUI:
             self._time_counter_flag = False
             self._reset_time_counter()
             self._change_time_button()
-            self._button['command'] = self._start_time_counter
     
     def _reset_time_counter(self):
         self._time_counter_flag = False
@@ -71,13 +101,12 @@ class LoadAnalyzerUI:
         if self._time_counter_flag:
             self._elapsed_time = time.time() - self._start_time
             self._update_time_counter_ui()
-            self._window.after(10, self._update_time_counter)
+            self._window.after(1000, self._update_time_counter)
     
     def _update_time_counter_ui(self):
         minutes, seconds = divmod(self._elapsed_time, 60)
         time_str = f'{int(minutes):02}:{int(seconds):02}'
         self._time_count_label['text'] = time_str
-    
     
     def _set_statistic_loop(self):
 
@@ -87,27 +116,21 @@ class LoadAnalyzerUI:
                 interval = int(interval)
                 if interval < 1:
                     interval = 1
+                if interval >= 100:
+                    interval = 10
             except:
                 interval = 1
-
-            system_statistics = SystemMonitor.get_system_resorces(interval=interval)
-
-            for statistic_key, statistic_value in system_statistics.items():
-                self._set_statistic_value(parameter_name=statistic_key, parameter_value=statistic_value)
-
+            self._set_statistic(interval)
             time.sleep(interval)
+
+    def _set_statistic(self, interval):
+        system_statistics = SystemMonitor.get_system_resorces(interval=interval)
+
+        for statistic_key, statistic_value in system_statistics.items():
+            self._set_statistic_value(parameter_name=statistic_key, parameter_value=statistic_value)
     
     def _stop_statistic_loop(self):
         self._auto_update_flag = False
-
-    def _start_set_statistic_loop(self):
-        self._auto_update_flag = True
-
-        self.update_thread = threading.Thread(target=self._set_statistic_loop)
-        self.update_thread.daemon = True
-        self.update_thread.start()
-
-
 
     def _create_widgets(self, names_statistic_parametrs:list):
         """
@@ -125,8 +148,7 @@ class LoadAnalyzerUI:
 
         # Создание строк статистики
         for index,name_statistic_parametr in enumerate(names_statistic_parametrs):
-            self._statistic_parametrs[name_statistic_parametr] = \
-                ttk.Label(self._main_frame, text=f'{name_statistic_parametr}: ', font=("Arial", 10))
+            self._statistic_parametrs[name_statistic_parametr] = ttk.Label(self._main_frame, text=f'{name_statistic_parametr}: ', font=("Arial", 10))
             
             self._statistic_parametrs[name_statistic_parametr].grid(row=index+1, column=0, columnspan=2, sticky='w')
         
@@ -142,13 +164,12 @@ class LoadAnalyzerUI:
         self._interval_entry.grid(row=0, column=1, sticky='w')
 
         # Создание кнопки для записи данных в бд
-        self._button = ttk.Button(frame_control_panel, text='Начать запись', command=self._start_time_counter)
+        self._button = ttk.Button(frame_control_panel, text='Начать запись', command=self._start_recording_statistics)
         self._button.grid(row=1, column=0, sticky='w')
 
         # Создание кнопки для записи данных в бд
         self._time_count_label = ttk.Label(frame_control_panel, text='00:00')
         self._time_count_label.grid(row=2, column=0, sticky='w')
-
 
     def _show_error_window(self, erorr_text:str):
         """
