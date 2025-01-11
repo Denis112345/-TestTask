@@ -3,8 +3,10 @@ from tkinter import ttk
 from tkinter import messagebox
 import time
 import threading
+import time
 
 from data_processing.main_data_processing import SystemMonitor
+from database_requesting.database_handlers import add_statistic
 
 class LoadAnalyzerUI:
     def __init__(self, window:tk.Tk):
@@ -23,6 +25,10 @@ class LoadAnalyzerUI:
 
         self._auto_update_flag = True
 
+        self._start_time = None
+        self._elapsed_time = 0
+        self._time_counter_flag = False
+
         self._main_frame = ttk.Frame(self._window, padding=(20,20)) # Фрейм для отступа 20 пикселей со всех сторон
         self._main_frame.pack(fill="both", expand=True)
 
@@ -34,27 +40,60 @@ class LoadAnalyzerUI:
         self.update_thread.daemon = True
         self.update_thread.start()
     
-    def _start_recording(self):
-        interval = self._interval_entry.get()
-        try:
-            interval = int(interval)
-        except:
-            self._show_error_window('Значние интревала должно быть цифрой или числом')
-
+    def _change_time_button(self):
+        if self._button['text'] != 'Остановить':
+            self._button['text'] = 'Остановить'
+            return
         
+        self._button['text'] = 'Начать запись'
+
+    def _start_time_counter(self):
+        if not self._time_counter_flag:
+            self._start_time = time.time()
+            self._time_counter_flag = True
+            self._change_time_button()
+            self._button['command'] = self._stop_time_counter
+            self._update_time_counter()
+    
+    def _stop_time_counter(self):
+        if self._time_counter_flag:
+            self._time_counter_flag = False
+            self._reset_time_counter()
+            self._change_time_button()
+            self._button['command'] = self._start_time_counter
+    
+    def _reset_time_counter(self):
+        self._time_counter_flag = False
+        self._elapsed_time = 0
+        self._update_time_counter_ui()
+
+    def _update_time_counter(self):
+        if self._time_counter_flag:
+            self._elapsed_time = time.time() - self._start_time
+            self._update_time_counter_ui()
+            self._window.after(10, self._update_time_counter)
+    
+    def _update_time_counter_ui(self):
+        minutes, seconds = divmod(self._elapsed_time, 60)
+        time_str = f'{int(minutes):02}:{int(seconds):02}'
+        self._time_count_label['text'] = time_str
+    
     
     def _set_statistic_loop(self):
 
         while self._auto_update_flag:
-            system_statistics = SystemMonitor.get_system_resorces(interval=0.5)
-
-            for statistic_key, statistic_value in system_statistics.items():
-                self._set_statistic_value(parameter_name=statistic_key, parameter_value=statistic_value)
             try:
                 interval = self._interval_entry.get()
                 interval = int(interval)
+                if interval < 1:
+                    interval = 1
             except:
-                interval = 0.5
+                interval = 1
+
+            system_statistics = SystemMonitor.get_system_resorces(interval=interval)
+
+            for statistic_key, statistic_value in system_statistics.items():
+                self._set_statistic_value(parameter_name=statistic_key, parameter_value=statistic_value)
 
             time.sleep(interval)
     
@@ -103,8 +142,12 @@ class LoadAnalyzerUI:
         self._interval_entry.grid(row=0, column=1, sticky='w')
 
         # Создание кнопки для записи данных в бд
-        self._button = ttk.Button(frame_control_panel, text='Начать запись', command=self._start_recording)
+        self._button = ttk.Button(frame_control_panel, text='Начать запись', command=self._start_time_counter)
         self._button.grid(row=1, column=0, sticky='w')
+
+        # Создание кнопки для записи данных в бд
+        self._time_count_label = ttk.Label(frame_control_panel, text='00:00')
+        self._time_count_label.grid(row=2, column=0, sticky='w')
 
 
     def _show_error_window(self, erorr_text:str):

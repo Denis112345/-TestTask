@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, select, insert, update, delete, text, inspect
 from sqlalchemy.orm import sessionmaker, declarative_base
-from models import Statistic, Base
+from .models import Statistic, Base
 
 DATABASE_URL = "postgresql://postgres@localhost:5432/TestTask"
 #DATABASE_URL = "mysql+mysqlconnector://user:password@host:port/database"  # MySQL
