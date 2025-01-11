@@ -11,7 +11,8 @@ class SystemMonitor:
         """
         pass
 
-    def get_system_resorces(self, interval=1) -> dict[str, str]:
+    @staticmethod
+    def get_system_resorces(interval=1) -> dict[str, str]:
         """
         Метод получения данных нагрузки системы
 
