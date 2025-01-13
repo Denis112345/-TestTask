@@ -2,14 +2,16 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 from sqlalchemy.orm import sessionmaker, declarative_base
 from .models import Statistic, Base
 
-DATABASE_URL = "postgresql://postgres@localhost:5432/TestTask"
-#DATABASE_URL = "mysql+mysqlconnector://user:password@host:port/database"  # MySQL
-#DATABASE_URL = "sqlite:///my_database.db" # SQLite
 
-engine = create_engine(DATABASE_URL)
+# Примеры подключения к базам данных
+# DATABASE_URL = "postgresql://postgres@localhost:5432/TestTask" # PostgreSQL
+# DATABASE_URL = "mysql+mysqlconnector://user:password@host:port/database"  # MySQL
+DATABASE_URL = "sqlite:///my_database.db" # SQLite 
 
-metadata = MetaData()
-Session = sessionmaker(bind=engine)
+engine = create_engine(DATABASE_URL) # Инициализация движка
+
+metadata = MetaData() # План или чертеж БД
+Session = sessionmaker(bind=engine) # Создание сессии для взаимодействия с БД
 
 def create_tables_if_not_exist():
     """
@@ -32,11 +34,13 @@ def add_statistic(statistic_data:dict):
         statistic_data: Данные новой статистики
     
     """
+    # with для автоматического закрытия сессии
     with Session() as session:
         try:
+           # Добавление новой записи в БД
            new_statistic = Statistic(**statistic_data)
            session.add(new_statistic)
-           session.commit()
+           session.commit() 
            
            return new_statistic
         except Exception as e:

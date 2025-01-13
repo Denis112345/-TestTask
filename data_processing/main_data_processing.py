@@ -1,4 +1,4 @@
-import psutil
+import psutil # Библиотека для сканирования системы
 
 class SystemMonitor:
     """
