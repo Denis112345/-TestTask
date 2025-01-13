@@ -24,7 +24,7 @@ class SystemMonitor:
 
         ram = psutil.virtual_memory()  # Информация об оперативной памяти
         ram_total = round(ram.total / (1024 ** 3), 1)  # RAM в гигабайтах
-        ram_free = round(ram.available / (1024 ** 3), 1)  # Свободная оперативная память в гигабайтах
+        ram_used = round(ram.used / (1024 ** 3), 1)  # Свободная оперативная память в гигабайтах
 
         disk = psutil.disk_usage('/')  # Информация о диске, / - корень
         disk_total = round(disk.total / (1024 ** 3), 1)  # Объем диска в гигабайтах
@@ -32,7 +32,7 @@ class SystemMonitor:
 
         return {
             'CPU': str(cpu_percent) + '%',
-            'RAM': str(ram_free) + ' ГБ / ' + str(ram_total) + ' ГБ',
+            'RAM': str(ram_used) + ' ГБ / ' + str(ram_total) + ' ГБ',
             'ROM': str(disk_free) + ' ГБ / ' + str(disk_total) + ' ГБ',
         }
     
