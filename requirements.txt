@@ -1,3 +1,4 @@
 psutil
 sqlalchemy
 psycopg2-binary
+pyinstaller
