@@ -19,6 +19,7 @@ class SystemMonitor:
         Args:
             interval: интервал для получения данных нагрузки процессора
 
+
         """
         cpu_percent = psutil.cpu_percent(interval) # Загрузка CPU (процент), интервал 1 секунда
 
